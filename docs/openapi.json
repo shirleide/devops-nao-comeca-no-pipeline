@@ -1,13 +1,14 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "API de Pedidos — case DevOpsDays",
+    "title": "API de Pedidos — case DevOpsDays Recife",
     "version": "1.0.0",
-    "description": "Fictícia e didática, sem integrações reais."
+    "description": "Cenários didáticos, sem pagamento ou estoque reais."
   },
   "paths": {
     "/health": {
       "get": {
+        "summary": "Healthcheck",
         "responses": {
           "200": {
             "description": "Servidor disponível"
@@ -17,29 +18,62 @@
     },
     "/orders": {
       "post": {
-        "summary": "Cria pedido; não garante confirmação",
+        "summary": "Cria pedido, sem garantia de confirmação de negócio",
         "responses": {
           "201": {
-            "description": "Pedido criado; estado pode ser pendente"
+            "description": "Recurso criado; estado pode ser PENDING, CONFIRMED, REJECTED ou REQUIRES_COMPENSATION"
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Pedido inválido"
           },
           "415": {
-            "description": "Content-Type incorreto"
+            "description": "Tipo não suportado"
           }
         }
       }
     },
     "/orders/{id}": {
       "get": {
-        "summary": "Consulta pedido",
+        "summary": "Consultar estado de pedido",
         "responses": {
           "200": {
             "description": "Pedido encontrado"
           },
           "404": {
-            "description": "Pedido não encontrado"
+            "description": "Não encontrado"
+          }
+        }
+      }
+    },
+    "/orders/{id}/flow": {
+      "get": {
+        "summary": "Fluxo e etapas do pedido",
+        "responses": {
+          "200": {
+            "description": "Timeline do pedido"
+          },
+          "404": {
+            "description": "Não encontrado"
+          }
+        }
+      }
+    },
+    "/scenarios": {
+      "get": {
+        "summary": "Lista fixtures didáticas",
+        "responses": {
+          "200": {
+            "description": "Cenários disponíveis"
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "summary": "Contadores didáticos sem identificadores",
+        "responses": {
+          "200": {
+            "description": "Métricas em formato texto"
           }
         }
       }
@@ -70,11 +104,59 @@
             "enum": [
               "PENDING",
               "CONFIRMED",
+              "REJECTED",
               "REQUIRES_COMPENSATION"
             ]
           },
           "compensationRequired": {
             "type": "boolean"
+          }
+        }
+      },
+      "FlowStep": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer"
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "REQUEST",
+              "PAYMENT",
+              "STOCK",
+              "DOMAIN_RULE",
+              "ORDER_STATE"
+            ]
+          },
+          "result": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      },
+      "OrderFlow": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "REJECTED",
+              "REQUIRES_COMPENSATION"
+            ]
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlowStep"
+            }
           }
         }
       }

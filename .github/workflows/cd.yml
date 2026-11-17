@@ -24,6 +24,8 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run contract
+      - name: Gate de regras e estados
+        run: npm run flow:check
       - run: npm run build
   publish:
     needs: verify

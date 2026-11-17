@@ -1,0 +1,10 @@
+flowchart TD
+  A[POST /orders] --> V{Entrada válida?}
+  V -->|Não| E[HTTP 400]
+  V -->|Sim| P{Pagamento}
+  P -->|Negado| R[REJECTED]
+  P -->|Inconclusivo| W[PENDING]
+  P -->|Autorizado| S{Reserva de estoque}
+  S -->|Reservado| C[CONFIRMED]
+  S -->|Falhou| F[REQUIRES_COMPENSATION]
+  S -->|Inconclusiva| W

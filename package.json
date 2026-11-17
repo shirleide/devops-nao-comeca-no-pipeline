@@ -14,7 +14,9 @@
     "test": "node --test --test-reporter=spec",
     "build": "node scripts/build.mjs",
     "demo": "node scripts/demo.mjs",
-    "contract": "node scripts/contract.mjs"
+    "contract": "node scripts/contract.mjs",
+    "demo:fluxos": "node scripts/flows.mjs",
+    "flow:check": "node scripts/flow-check.mjs"
   },
   "license": "MIT"
 }

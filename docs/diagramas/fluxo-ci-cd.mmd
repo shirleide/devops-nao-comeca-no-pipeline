@@ -1,0 +1,9 @@
+flowchart LR
+  PR[Push ou PR] --> CI[CI: check + tests + contrato + flow:check + build]
+  CI -->|Falha| STOP[Bloquear avanço]
+  CI -->|Verde| ART[Artefato de CI]
+  MAIN[Push main] --> VERIFY[CD: verify]
+  VERIFY -->|Falha| STOP
+  VERIFY -->|Verde e PUBLISH_IMAGE=true| GHCR[Publicar imagem GHCR]
+  VERIFY -->|Sem opt-in| NOP[Sem publicação]
+  GHCR -->|DEPLOY_ENABLED=true| HOOK[Deploy hook externo]

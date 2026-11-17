@@ -1,6 +1,7 @@
 import {createServer} from 'node:http';
 import {createOrderService} from '../application/order-service.js';
 import {createTelemetry} from '../infrastructure/telemetry.js';
+import {scenarios} from '../domain/scenarios.js';
 
 function respond(res, code, data, headers = {}) {
   res.writeHead(code, {'content-type': 'application/json; charset=utf-8', ...headers});
@@ -23,12 +24,22 @@ export function createApp({orders = createOrderService(), telemetry = createTele
       res.writeHead(200, {'content-type': 'text/plain; version=0.0.4; charset=utf-8'});
       return res.end(telemetry.metrics());
     }
+    if (req.method === 'GET' && path === '/scenarios') {
+      return respond(res, 200, {scenarios});
+    }
+    const flowMatch = path.match(/^\/orders\/([^/]+)\/flow$/);
+    if (req.method === 'GET' && flowMatch) {
+      const flow = orders.getFlowById(flowMatch[1]);
+      return flow ? respond(res, 200, flow) : respond(res, 404, {error: 'ORDER_NOT_FOUND'});
+    }
     if (req.method === 'GET' && path.startsWith('/orders/')) {
       const order = orders.getById(path.substring('/orders/'.length));
       return order ? respond(res, 200, order) : respond(res, 404, {error: 'ORDER_NOT_FOUND'});
     }
     if (req.method === 'POST' && path === '/orders') {
-      if (!req.headers['content-type']?.startsWith('application/json')) return respond(res, 415, {error: 'UNSUPPORTED_MEDIA_TYPE'});
+      if (!req.headers['content-type']?.startsWith('application/json')) {
+        return respond(res, 415, {error: 'UNSUPPORTED_MEDIA_TYPE'});
+      }
       try {
         const body = await readJSON(req);
         if (typeof body?.sku !== 'string' || !/^SKU-[A-Z-]{1,45}$/.test(body.sku) ||
