@@ -3,8 +3,14 @@ export const OrderStatus = Object.freeze({
   CONFIRMED: 'CONFIRMED',
   REQUIRES_COMPENSATION: 'REQUIRES_COMPENSATION'
 });
-// BUG INTENCIONAL DA FASE 01: ignora o resultado da reserva de estoque.
+// Invariante necessária: CONFIRMED => pagamento autorizado E estoque reservado.
+// Não cria atomicidade entre serviços externos.
 export function decideOrderStatus(paymentStatus, stockStatus) {
-  if (paymentStatus === 'AUTHORIZED') return OrderStatus.CONFIRMED;
+  if (paymentStatus === 'AUTHORIZED' && stockStatus === 'RESERVED') {
+    return OrderStatus.CONFIRMED;
+  }
+  if (paymentStatus === 'AUTHORIZED' && stockStatus === 'FAILED') {
+    return OrderStatus.REQUIRES_COMPENSATION;
+  }
   return OrderStatus.PENDING;
 }
