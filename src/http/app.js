@@ -1,5 +1,7 @@
 import {createServer} from 'node:http';
 import {createOrderService} from '../application/order-service.js';
+import {createTelemetry} from '../infrastructure/telemetry.js';
+
 function respond(res, code, data, headers = {}) {
   res.writeHead(code, {'content-type': 'application/json; charset=utf-8', ...headers});
   res.end(JSON.stringify(data));
@@ -13,10 +15,14 @@ async function readJSON(req) {
   try {return JSON.parse(text);}
   catch {throw Object.assign(new Error('JSON inválido'), {code: 400});}
 }
-export function createApp({orders = createOrderService()} = {}) {
+export function createApp({orders = createOrderService(), telemetry = createTelemetry()} = {}) {
   return createServer(async (req, res) => {
     const path = new URL(req.url, 'http://localhost').pathname;
     if (req.method === 'GET' && path === '/health') return respond(res, 200, {status: 'UP'});
+    if (req.method === 'GET' && path === '/metrics') {
+      res.writeHead(200, {'content-type': 'text/plain; version=0.0.4; charset=utf-8'});
+      return res.end(telemetry.metrics());
+    }
     if (req.method === 'GET' && path.startsWith('/orders/')) {
       const order = orders.getById(path.substring('/orders/'.length));
       return order ? respond(res, 200, order) : respond(res, 404, {error: 'ORDER_NOT_FOUND'});
@@ -30,6 +36,7 @@ export function createApp({orders = createOrderService()} = {}) {
           return respond(res, 400, {error: 'INVALID_ORDER'});
         }
         const order = orders.create({sku: body.sku, quantity: body.quantity});
+        telemetry.record(order);
         return respond(res, 201, order, {location: '/orders/' + order.id});
       } catch (error) {
         const code = [400, 413].includes(error.code) ? error.code : 500;
