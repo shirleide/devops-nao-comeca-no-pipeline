@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0B0614">
+<meta name="description" content="Case interativo DevOpsDays Recife 2026: compare um pipeline verde com bug e o código corrigido.">
+<title>DevOps não começa no pipeline — Demo interativa</title>
+<link rel="stylesheet" href="./demo.css">
+</head>
+<body>
+<div class="wrapper">
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark" aria-hidden="true">&lt;/&gt;</div><span>Shirleide.dev<small>DEVOPSDAYS RECIFE 2026</small></span></div>
+    <a class="external" href="https://github.com/shirleide/devops-nao-comeca-no-pipeline" target="_blank" rel="noopener noreferrer">Ver código no GitHub ↗</a>
+  </header>
+  <main id="conteudo">
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <span class="eyebrow">CASE INTERATIVO · NODE.JS · CI/CD</span>
+        <h1 id="hero-title">DevOps não começa <em>no pipeline.</em></h1>
+        <p class="lead">O pipeline passou. O pedido foi confirmado. Mas o estoque nunca foi reservado. Descubra o que a automação não estava testando.</p>
+        <p class="note"><strong>Simulação didática no navegador:</strong> não realiza pedidos, cobranças nem chamadas à API. Os links de CI abaixo são execuções reais do GitHub Actions.</p>
+        <div class="links">
+          <a class="primary" href="#simulador">Explorar o bug ↓</a>
+          <a class="secondary" href="#evidencias">Ver execuções reais</a>
+        </div>
+      </div>
+      <aside class="hero-card" aria-label="Invariante de domínio">
+        <div class="micro">BUSINESS RULE / INVARIANT</div>
+        <div class="code" style="margin-top:20px">
+          <span class="code-comment">// A condição que faltava</span><br>
+          <span class="code-key">CONFIRMED</span><br>
+          <span class="code-val">⇒</span> payment == AUTHORIZED<br>
+          &nbsp;&nbsp;<span class="code-val">&amp;&amp;</span> stock == RESERVED
+        </div>
+        <p class="note" style="margin-top:20px">Essa condição é necessária para confirmar, mas não garante atomicidade distribuída.</p>
+      </aside>
+    </section>
+    <section class="section" id="evidencias" aria-labelledby="evidence-title">
+      <div class="micro">EVIDÊNCIAS DO GITHUB ACTIONS</div>
+      <h2 id="evidence-title" class="section-title">Verde. Vermelho. Verde.</h2>
+      <p class="subheading">Três execuções reais do CI, em branches diferentes. Os números abaixo vêm dos logs do GitHub.</p>
+      <div class="metrics">
+        <a class="metric" href="https://github.com/shirleide/devops-nao-comeca-no-pipeline/actions/runs/43998063185" target="_blank" rel="noopener noreferrer">
+          <div class="metric-head">FASE 01 · BUG ORIGINAL <span class="pill good">SUCCESS</span></div>
+          <strong>1 / 1</strong><small>Teste passou. Bug não coberto. ↗</small>
+        </a>
+        <a class="metric" href="https://github.com/shirleide/devops-nao-comeca-no-pipeline/actions/runs/43998114881" target="_blank" rel="noopener noreferrer">
+          <div class="metric-head">FASE 03 · TESTE NOVO <span class="pill bad">FAILURE</span></div>
+          <strong>1 / 3</strong><small>Dois testes revelaram o bug. ↗</small>
+        </a>
+        <a class="metric" href="https://github.com/shirleide/devops-nao-comeca-no-pipeline/actions/runs/43998122253" target="_blank" rel="noopener noreferrer">
+          <div class="metric-head">FASE 04 · CORREÇÃO <span class="pill good">SUCCESS</span></div>
+          <strong>3 / 3</strong><small>Três testes passaram. ↗</small>
+        </a>
+      </div>
+    </section>
+    <section class="section" id="simulador" aria-labelledby="sim-title">
+      <div class="sim-header">
+        <div><div class="micro">SIMULADOR DE REGRA DE NEGÓCIO</div><h2 class="section-title" id="sim-title">Mesmo pedido. Duas decisões.</h2></div>
+        <span class="pill warn">100% FRONT-END / SEM API EXTERNA</span>
+      </div>
+      <p class="subheading">Escolha um cenário e compare as regras da <code>fase/01</code> (bug) e da <code>main</code> (corrigida).</p>
+      <div class="sim-layout">
+        <div class="panel controls">
+          <div class="micro">01 / CENÁRIO</div>
+          <label for="scenario">O que acontece com o pedido?</label>
+          <select id="scenario" name="scenario">
+            <option value="SKU-SEM-ESTOQUE">Estoque indisponível (bug principal)</option>
+            <option value="SKU-PENDENTE">Reserva pendente</option>
+            <option value="SKU-DISPONIVEL">Caminho feliz</option>
+            <option value="SKU-PAGAMENTO-NEGADO">Pagamento negado</option>
+            <option value="SKU-PAGAMENTO-PENDENTE">Pagamento pendente</option>
+          </select>
+          <button class="primary" id="run" type="button">Executar comparação ↗</button>
+          <div class="explanation">
+            <div class="micro" id="scenario-title">Estoque indisponível</div>
+            <p id="scenario-description">Pagamento autorizado, reserva de estoque falha.</p>
+            <p id="scenario-rule">O pedido não pode ser confirmado.</p>
+          </div>
+          <p class="note"><strong>O que é simulado?</strong> Autorização, reserva e estados são determinísticos. Nenhum valor é enviado para um servidor.</p>
+        </div>
+        <div class="compare">
+          <article class="panel result-panel" aria-labelledby="bug-title">
+            <div class="result-head"><span class="version" id="bug-title">ANTES · FASE 01</span><span class="pill bad">BUG</span></div>
+            <div class="status bad" id="bug-status">
+              <div class="micro">ESTADO FINAL DO PEDIDO</div>
+              <div class="state mono" id="bug-state">CONFIRMED</div>
+              <p id="bug-alert">INVARIANTE VIOLADA: CONFIRMED sem reserva de estoque.</p>
+            </div>
+            <div class="micro">TIMELINE SIMULADA</div>
+            <ol class="timeline" id="bug-steps"></ol>
+          </article>
+          <article class="panel result-panel" aria-labelledby="fixed-title">
+            <div class="result-head"><span class="version" id="fixed-title">DEPOIS · MAIN</span><span class="pill good">CORRIGIDO</span></div>
+            <div class="status warn" id="fixed-status">
+              <div class="micro">ESTADO FINAL DO PEDIDO</div>
+              <div class="state mono" id="fixed-state">REQUIRES_COMPENSATION</div>
+              <p id="fixed-alert">Pedido não confirmado.</p>
+            </div>
+            <div class="micro">TIMELINE SIMULADA</div>
+            <ol class="timeline" id="fixed-steps"></ol>
+          </article>
+        </div>
+      </div>
+      <p class="explanation" id="comparison-description" aria-live="polite">O bug permitia confirmar sem estoque reservado. A versão corrigida bloqueia essa transição.</p>
+    </section>
+    <section class="section" aria-labelledby="code-title">
+      <div class="micro">O QUE MUDOU NO CÓDIGO</div>
+      <h2 class="section-title" id="code-title">Uma condição muda o destino do pedido.</h2>
+      <p class="subheading">Trechos representativos de <code>src/domain/order.js</code>. A correção também trata a falha de reserva como um estado que exige compensação posterior.</p>
+      <div class="code-comparison">
+        <div class="codebox">
+          <header>FASE 01 · BUG ORIGINAL</header>
+          <pre><code><span class="neg">if (paymentStatus === 'AUTHORIZED')</span>
+  return OrderStatus.CONFIRMED;
+
+return OrderStatus.PENDING;</code></pre>
+        </div>
+        <div class="codebox">
+          <header>FASE 04 · REGRA PROTEGIDA</header>
+          <pre><code><span class="pos">if (paymentStatus === 'AUTHORIZED'
+    &amp;&amp; stockStatus === 'RESERVED')</span>
+  return OrderStatus.CONFIRMED;
+
+if (paymentStatus === 'AUTHORIZED'
+    &amp;&amp; stockStatus === 'FAILED')
+  return OrderStatus.REQUIRES_COMPENSATION;
+
+return OrderStatus.PENDING;</code></pre>
+        </div>
+      </div>
+      <div class="links">
+        <a class="secondary" href="https://github.com/shirleide/devops-nao-comeca-no-pipeline/blob/fase/01-pipeline-verde-bug/src/domain/order.js" target="_blank" rel="noopener noreferrer">Ver código com bug ↗</a>
+        <a class="secondary" href="https://github.com/shirleide/devops-nao-comeca-no-pipeline/blob/main/src/domain/order.js" target="_blank" rel="noopener noreferrer">Ver regra corrigida ↗</a>
+        <a class="secondary" href="https://github.com/shirleide/devops-nao-comeca-no-pipeline/actions/runs/43998602847" target="_blank" rel="noopener noreferrer">CI final: 21 testes ↗</a>
+      </div>
+    </section>
+  </main>
+  <footer class="footer"><div class="footer-inner">
+    <div><strong>Shirleide.dev</strong> · DevOpsDays Recife 2026 · Projeto educativo</div>
+    <div>Software correto começa com uma regra de negócio clara.</div>
+  </div></footer>
+</div>
+<script src="./demo.js" defer></script>
+</body>
+</html>
