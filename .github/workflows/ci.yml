@@ -8,7 +8,6 @@ permissions:
   contents: read
 jobs:
   quality:
-    name: Qualidade > Testes > Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,16 +17,12 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-      - name: Instalar de forma reproduzível
-        run: npm ci
-      - name: Checar sintaxe
-        run: npm run check
-      - name: Testar comportamento
-        run: npm test
-      - name: Empacotar aplicação
-        run: npm run build
-      - name: Guardar artefato
-        uses: actions/upload-artifact@v4
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm run contract
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
         with:
           name: node-dist
           path: dist/

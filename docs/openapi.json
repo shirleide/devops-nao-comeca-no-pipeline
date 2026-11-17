@@ -1,0 +1,83 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "API de Pedidos — case DevOpsDays",
+    "version": "1.0.0",
+    "description": "Fictícia e didática, sem integrações reais."
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Servidor disponível"
+          }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "summary": "Cria pedido; não garante confirmação",
+        "responses": {
+          "201": {
+            "description": "Pedido criado; estado pode ser pendente"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "415": {
+            "description": "Content-Type incorreto"
+          }
+        }
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "summary": "Consulta pedido",
+        "responses": {
+          "200": {
+            "description": "Pedido encontrado"
+          },
+          "404": {
+            "description": "Pedido não encontrado"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "paymentStatus": {
+            "type": "string"
+          },
+          "stockStatus": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "REQUIRES_COMPENSATION"
+            ]
+          },
+          "compensationRequired": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}
