@@ -12,6 +12,17 @@ Um e-commerce autorizou o pagamento, não reservou o estoque e mesmo assim retor
 
 Sem pagamento real, clientes reais, banco de dados ou integrações externas. **Não use como implementação de produção.**
 
+## Demo interativa no navegador (GitHub Pages)
+
+A pasta `docs/` contém uma **demo estática** e responsiva para comparar cinco cenários de pedido com a regra antiga (bug) e a regra corrigida.
+
+- **Código da interface:** [docs/index.html](docs/index.html)
+- **Como ativar a página:** [docs/ATIVAR_GITHUB_PAGES.md](docs/ATIVAR_GITHUB_PAGES.md)
+- **Endereço previsto após ativação:** https://shirleide.github.io/devops-nao-comeca-no-pipeline/
+- **Evidências reais do CI:** [fase 01](https://github.com/shirleide/devops-nao-comeca-no-pipeline/actions/runs/43998063185) · [fase 03](https://github.com/shirleide/devops-nao-comeca-no-pipeline/actions/runs/43998114881) · [fase 04](https://github.com/shirleide/devops-nao-comeca-no-pipeline/actions/runs/43998122253)
+
+> A página simula pagamento, estoque e timeline exclusivamente no navegador. Não executa a API Node.js hospedada; os links de GitHub Actions são evidências reais.
+
 ## Como executar (Node.js 22+; CI usa Node 24)
 
 ```bash
